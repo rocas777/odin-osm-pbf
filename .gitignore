@@ -1,0 +1,15 @@
+*.exe
+*.out
+*.dll
+*.so
+*.a
+*.lib
+
+# Temporary files
+*.tmp
+*.swp
+*.swo
+
+# Editor folders
+.vscode/
+.idea/
