@@ -124,3 +124,46 @@ get_lat :: proc(n: ^Node) -> f64{
 get_lon :: proc(n: ^Node) -> f64{
     return f64(n._pb.lon_offset + n._lon * i64(n._pb.granularity)) * 1e-9
 }
+
+has_value_node :: proc(n: ^Node, s: string) -> bool{
+    for k in n._vals{
+        if n._pb.string_table[k] == s{
+            return true
+        }
+    }
+    return false
+}
+
+has_value_way :: proc(w: ^Way, s: string) -> bool{
+    for k in w._vals{
+        if w._pb.string_table[k] == s{
+            return true
+        }
+    }
+    return false
+}
+
+has_value :: proc{has_value_node, has_value_way}
+
+
+get_value_node :: proc(n: ^Node, s: string) -> string{
+    for k,i in n._keys{
+        value := n._vals[i]
+        if n._pb.string_table[k] == s{
+            return new_clone(n._pb.string_table[value])^
+        }
+    }
+    return ""
+}
+
+get_value_way :: proc(w: ^Way, s: string) -> string{
+    for k,i in w._keys{
+        value := w._vals[i]
+        if w._pb.string_table[k] == s{
+            return new_clone(w._pb.string_table[value])^
+        }
+    }
+    return ""
+}
+
+get_value :: proc{get_value_node, get_value_way}
