@@ -8,7 +8,7 @@ import "core:sync"
 import pbf "../../odin_pbf"
 
 main :: proc() {
-    r := pbf.get_reader("./examples/simple/andorra-260308.osm.pbf")
+    r := pbf.get_reader("./data/andorra-260308.osm.pbf")
 
     r.handle_node = read_node
     r.handle_way = read_way

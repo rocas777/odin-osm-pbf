@@ -1,5 +1,7 @@
 package odin_pbf
 
+import fmt "core:fmt"
+
 BlobHeader :: struct {
     type: string,
     indexdata: []u8,
@@ -50,6 +52,11 @@ PrimitiveGroup :: union{
     DenseNodes,
 }
 
+NodeType :: enum{
+    DenseNode,
+    Node
+}
+
 Node :: struct{
     id: i64,
     _keys : []u32,
@@ -58,11 +65,15 @@ Node :: struct{
     _lat: i64,
     _lon: i64,
 
+    _keys_vals : []u32,
+
     _pb: ^PrimitiveBlock,
+
+    _type: NodeType
 }
 
 Way :: struct{
-    id: i64,
+    id: u64,
     _keys : []u32,
     _vals : []u32,
     //    info: Info
@@ -78,13 +89,21 @@ DenseNodes :: struct{
     //    denseInfo: DenseInfo
     _lat: []i64,
     _lon: []i64,
-    //    keys_vals: []u32,
+    _keys_vals: []u32,
 
     _pb: ^PrimitiveBlock,
 }
 
 
 has_key_node :: proc(n: ^Node, s: string) -> bool{
+    if n._keys_vals != nil{
+        for i := 0; i < len(n._keys_vals); i += 2{
+            k := n._keys_vals[i]
+            if n._pb.string_table[k] == s{
+                return true
+            }
+        }
+    }
     for k in n._keys{
         if n._pb.string_table[k] == s{
             return true
@@ -126,6 +145,12 @@ get_lon :: proc(n: ^Node) -> f64{
 }
 
 has_value_node :: proc(n: ^Node, s: string) -> bool{
+    for i := 1; i < len(n._keys_vals); i += 2{
+        k := n._keys_vals[i]
+        if n._pb.string_table[k] == s{
+            return true
+        }
+    }
     for k in n._vals{
         if n._pb.string_table[k] == s{
             return true
@@ -147,10 +172,19 @@ has_value :: proc{has_value_node, has_value_way}
 
 
 get_value_node :: proc(n: ^Node, s: string) -> string{
+    if n._keys_vals != nil{
+        for i := 0; i < len(n._keys_vals); i += 2{
+            k := n._keys_vals[i]
+            if n._pb.string_table[k] == s{
+                v := n._keys_vals[i+1]
+                return n._pb.string_table[v]
+            }
+        }
+    }
     for k,i in n._keys{
         value := n._vals[i]
         if n._pb.string_table[k] == s{
-            return new_clone(n._pb.string_table[value])^
+            return n._pb.string_table[value]
         }
     }
     return ""
@@ -160,7 +194,7 @@ get_value_way :: proc(w: ^Way, s: string) -> string{
     for k,i in w._keys{
         value := w._vals[i]
         if w._pb.string_table[k] == s{
-            return new_clone(w._pb.string_table[value])^
+            return w._pb.string_table[value]
         }
     }
     return ""

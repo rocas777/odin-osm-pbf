@@ -2,6 +2,7 @@ package odin_pbf
 
 import "core:io"
 import "core:bufio"
+import fmt "core:fmt"
 
 read_varint_fast :: #force_inline proc(buf: []u8, i: ^int) -> u64 {
     b := buf[i^]
@@ -51,7 +52,7 @@ read_i64 :: #force_inline proc(buf: []u8, i: ^int) -> i64{
 }
 
 decode_zigzag64 :: proc(v: u64) -> i64 {
-    return i64(v >> 1) ~ -i64(v & 1)
+    return i64(v >> 1) ~ (-i64(v & 1))
 }
 
 read_packed_u32 :: proc(buf: []u8, i: ^int) -> []u32 {

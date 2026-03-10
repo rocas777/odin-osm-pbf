@@ -1,6 +1,8 @@
 package odin_pbf
 
 import "core:bytes"
+import fmt "core:fmt"
+import os "core:os"
 
 skip_field :: #force_inline proc(buf: []u8, i: ^int, wire: u64){
     switch wire{
@@ -74,6 +76,7 @@ primitive_group_destroy :: proc(p: ^PrimitiveGroup){
             delete(v._id)
             delete(v._lat)
             delete(v._lon)
+            delete(v._keys_vals)
         }
         case:
     }
@@ -291,6 +294,7 @@ parse_primitive_block :: proc(buf: []u8, i: ^int, r: ^Reader) -> PrimitiveBlock 
                     continue
                 }
                 for &n in pg{
+                    n._type = .Node
                     n._pb = &block
                     r.handle_node(&n)
                 }
@@ -312,16 +316,30 @@ parse_primitive_block :: proc(buf: []u8, i: ^int, r: ^Reader) -> PrimitiveBlock 
                 last_lat : i64 = 0
                 last_lon : i64 = 0
 
+                kv_i := 0
+
                 for dn, k in pg._id{
+                    start := kv_i
+
+                    for kv_i < len(pg._keys_vals) && pg._keys_vals[kv_i] != 0 {
+                        kv_i += 2
+                    }
+
                     n := Node {
                         id = last_id + dn,
                         _lat = last_lat + pg._lat[k],
                         _lon = last_lon + pg._lon[k],
-                        _pb = &block
+                        _pb = &block,
+                        _type = .DenseNode,
+                        _keys_vals = pg._keys_vals[start:kv_i],
                     }
+
+                    kv_i += 1
+
                     last_id = n.id
                     last_lat = n._lat
                     last_lon = n._lon
+
                     r.handle_node(&n)
                 }
             }
@@ -485,7 +503,7 @@ parse_way :: proc(buf: []u8) -> Way{
 
         switch field {
             case 1:{
-                way.id = decode_zigzag64(read_varint_fast(buf, &i))
+                way.id = read_varint_fast(buf, &i)
             }
             case 2:{
                 way._keys = read_packed_u32(buf, &i)
@@ -530,6 +548,9 @@ parse_dense_node :: proc(buf: []u8) -> DenseNodes{
             }
             case 9:{
                 node._lon = read_packed_i64_zg(buf, &i)
+            }
+            case 10:{
+                node._keys_vals = read_packed_u32(buf, &i)
             }
             case:
                 skip_field(buf, &i, wire)
