@@ -3,9 +3,7 @@ package odin_pbf
 import "core:os"
 import "core:io"
 import "core:bufio"
-import "core:time"
 import "core:thread"
-import "core:sync"
 import "core:mem"
 
 Reader :: struct{
@@ -61,16 +59,13 @@ reader_destroy :: proc(r: ^Reader){
 
 
 read_file_block :: proc(r: ^Reader){
-    wg : sync.Wait_Group
     threadPool :thread.Pool
     thread.pool_init(&threadPool, context.allocator, int(r.procs))
     thread.pool_start(&threadPool)
     defer thread.pool_destroy(&threadPool)
 
-    start := time.now()
     sum : u64
     for i := 0; ;i+=1{
-        frame := time.now()
         block_size, err_size := read_u32_be(r)
         if(err_size == io.Error.EOF){
             break

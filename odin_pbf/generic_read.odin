@@ -2,7 +2,6 @@ package odin_pbf
 
 import "core:io"
 import "core:bufio"
-import fmt "core:fmt"
 
 read_varint_fast :: #force_inline proc(buf: []u8, i: ^int) -> u64 {
     b := buf[i^]

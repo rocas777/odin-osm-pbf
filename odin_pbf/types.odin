@@ -1,7 +1,5 @@
 package odin_pbf
 
-import fmt "core:fmt"
-
 BlobHeader :: struct {
     type: string,
     indexdata: []u8,

@@ -1,8 +1,6 @@
 package odin_pbf
 
 import "core:bytes"
-import fmt "core:fmt"
-import os "core:os"
 
 skip_field :: #force_inline proc(buf: []u8, i: ^int, wire: u64){
     switch wire{
