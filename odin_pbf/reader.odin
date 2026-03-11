@@ -9,7 +9,7 @@ import "core:mem"
 Reader :: struct{
     file: ^os.File,
     reader : bufio.Reader,
-    procs: u16,
+    procs: int,
 
     handle_node: proc(n: ^Node),
     handle_way: proc(w: ^Way),
@@ -23,10 +23,10 @@ workerData :: struct {
     reader: ^Reader
 }
 
-get_reader :: proc(path: string, procs: u16 = 0) -> Reader {
+get_reader :: proc(path: string, procs := 0) -> Reader {
     np := procs
     if np == 0{
-        np = u16(os.get_processor_core_count() - 1)
+        np = os.get_processor_core_count() - 1
         if np < 1 {
             np = 1
         }
