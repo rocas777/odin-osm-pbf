@@ -24,11 +24,11 @@ workerData :: struct {
 }
 
 get_reader :: proc(path: string, procs: u16 = 0) -> Reader {
-    procs : u16 = procs
-    if procs == 0{
-        procs = u16(os.get_processor_core_count()) - 1
-        if procs < 1 {
-            procs = 1
+    np := procs
+    if np == 0{
+        np = u16(os.get_processor_core_count() - 1)
+        if np < 1 {
+            np = 1
         }
     }
 
@@ -44,7 +44,7 @@ get_reader :: proc(path: string, procs: u16 = 0) -> Reader {
 
     return Reader{
         file = f,
-        procs = u16(procs),
+        procs = procs,
         reader = buffio_reader
     }
 }
