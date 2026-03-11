@@ -44,7 +44,7 @@ get_reader :: proc(path: string, procs := 0) -> Reader {
 
     return Reader{
         file = f,
-        procs = procs,
+        procs = np,
         reader = buffio_reader
     }
 }
