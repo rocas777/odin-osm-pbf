@@ -11,8 +11,10 @@ Reader :: struct{
     reader : bufio.Reader,
     procs: int,
 
-    handle_node: proc(n: ^Node),
-    handle_way: proc(w: ^Way),
+    handle_node: proc(n: ^Node, ctx: rawptr),
+    handle_way: proc(w: ^Way, ctx: rawptr),
+
+    ctx: rawptr
 }
 
 

@@ -294,7 +294,7 @@ parse_primitive_block :: proc(buf: []u8, i: ^int, r: ^Reader) -> PrimitiveBlock 
                 for &n in pg{
                     n._type = .Node
                     n._pb = &block
-                    r.handle_node(&n)
+                    r.handle_node(&n, r.ctx)
                 }
             }
             case []Way:{
@@ -303,7 +303,7 @@ parse_primitive_block :: proc(buf: []u8, i: ^int, r: ^Reader) -> PrimitiveBlock 
                 }
                 for &w in pg{
                     w._pb = &block
-                    r.handle_way(&w)
+                    r.handle_way(&w, r.ctx)
                 }
             }
             case DenseNodes:{
@@ -338,7 +338,7 @@ parse_primitive_block :: proc(buf: []u8, i: ^int, r: ^Reader) -> PrimitiveBlock 
                     last_lat = n._lat
                     last_lon = n._lon
 
-                    r.handle_node(&n)
+                    r.handle_node(&n, r.ctx)
                 }
             }
         }

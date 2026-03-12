@@ -6,16 +6,6 @@ import fmt "core:fmt"
 import time "core:time"
 import sync "core:sync"
 
-init :: proc(r : ^pbf.Reader){
-    r^ = pbf.get_reader("./data/andorra-260308.osm.pbf", 24)
-
-    count = 0
-    success = false
-}
-
-destroy :: proc(r: ^pbf.Reader){
-    pbf.reader_destroy(r)
-}
 
 count : i64
 
@@ -24,7 +14,7 @@ success : bool
 //osmium cat ./data/andorra-260308.osm.pbf -f opl | grep '^n' | wc -l
 @(test)
 read_correct_count_nodes :: proc(t: ^testing.T) {
-    read_node :: proc(n: ^pbf.Node){
+    read_node :: proc(n: ^pbf.Node, _: rawptr){
         sync.atomic_add(&count, 1)
     }
 
@@ -41,7 +31,7 @@ read_correct_count_nodes :: proc(t: ^testing.T) {
 //osmium count -t way ./data/andorra-260308.osm.pbf
 @(test)
 read_correct_count_ways :: proc(t: ^testing.T) {
-    read_way :: proc(w: ^pbf.Way){
+    read_way :: proc(w: ^pbf.Way, _: rawptr){
         sync.atomic_add(&count, 1)
     }
 
@@ -58,7 +48,7 @@ read_correct_count_ways :: proc(t: ^testing.T) {
 //osmium cat ./data/andorra-260308.osm.pbf -f opl | grep '^n' | grep -E '(^|,|T)name=' | wc -l
 @(test)
 has_key_nodes :: proc(t: ^testing.T) {
-    read_node :: proc(n: ^pbf.Node){
+    read_node :: proc(n: ^pbf.Node, _: rawptr){
         if pbf.has_key(n, "name"){
             sync.atomic_add(&count, 1)
         }
@@ -77,7 +67,7 @@ has_key_nodes :: proc(t: ^testing.T) {
 //osmium cat ./data/andorra-260308.osm.pbf -f opl | grep '^w' | grep -E '(^|,|T)highway=' | wc -l
 @(test)
 has_key_ways :: proc(t: ^testing.T) {
-    read_way :: proc(w: ^pbf.Way){
+    read_way :: proc(w: ^pbf.Way, _: rawptr){
         if pbf.has_key(w, "highway"){
             sync.atomic_add(&count, 1)
         }
@@ -96,7 +86,7 @@ has_key_ways :: proc(t: ^testing.T) {
 //osmium cat ./data/andorra-260308.osm.pbf -f opl | grep '^n' | grep -E '=crossing([ ,]|$)' | wc -l
 @(test)
 has_value_nodes :: proc(t: ^testing.T) {
-    read_node :: proc(n: ^pbf.Node){
+    read_node :: proc(n: ^pbf.Node, _: rawptr){
         if pbf.has_value(n, "crossing"){
             sync.atomic_add(&count, 1)
         }
@@ -115,7 +105,7 @@ has_value_nodes :: proc(t: ^testing.T) {
 //osmium cat ./data/andorra-260308.osm.pbf -f opl | grep '^w' | grep -E '=residential([ ,]|$)' | wc -l
 @(test)
 has_value_ways :: proc(t: ^testing.T) {
-    read_way :: proc(w: ^pbf.Way){
+    read_way :: proc(w: ^pbf.Way, _: rawptr){
         if pbf.has_value(w, "residential"){
             sync.atomic_add(&count, 1)
         }
@@ -134,7 +124,7 @@ has_value_ways :: proc(t: ^testing.T) {
 
 @(test)
 get_value_ways :: proc(t: ^testing.T) {
-    read_way :: proc(w: ^pbf.Way){
+    read_way :: proc(w: ^pbf.Way, _: rawptr){
         if w.id == 1459434920{
             v :=  pbf.get_value(w, "highway")
             if(v == "residential"){
@@ -155,7 +145,7 @@ get_value_ways :: proc(t: ^testing.T) {
 
 @(test)
 get_value_nodes :: proc(t: ^testing.T) {
-    read_node :: proc(n: ^pbf.Node){
+    read_node :: proc(n: ^pbf.Node, _: rawptr){
         if n.id == 13593008002{
             v :=  pbf.get_value(n, "amenity")
             if(v == "restaurant"){
